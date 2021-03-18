@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ComandClasses;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
@@ -31,6 +32,8 @@ namespace _02_ChatClient
 
         ObservableCollection<MessageInfo> messages = new ObservableCollection<MessageInfo>();
 
+        public Client_Command client_Command = new Client_Command();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -49,25 +52,17 @@ namespace _02_ChatClient
                 {
                     byte[] data = client.Receive(ref iPEndPoint);
 
-                    string msg = Encoding.UTF8.GetString(data);
+                    Server_Command server_Command = (Server_Command)ByteArrayToObject(data);
+                    client_Command.Name = server_Command.Name;
+                    client_Command.Message = server_Command.Message;
 
-                    char[] wordsSplit = new char[] { ' ' };
-                    string[] words = msg.Split(wordsSplit, StringSplitOptions.RemoveEmptyEntries);
-                    string[] newWords = new string[words.Length - 1];
-                    for (int i = 1, j = 0; i < words.Length; i++, j++)
-                    {
-                        newWords[j] = words[i];
-                    }
-
-                    string name = words[0];
-
-                    msg = String.Join(" ", newWords);
+                    string msg = client_Command.Message;
 
                     Dispatcher.BeginInvoke(new Action(() =>
                     {
                         messages.Insert(0, new MessageInfo()
                         {
-                            Name = name,
+                            Name = client_Command.Name,
                             Time = DateTime.Now.ToShortTimeString(),
                             Text = msg
                         });
@@ -95,39 +90,62 @@ namespace _02_ChatClient
 
             IPEndPoint iPEndPoint = new IPEndPoint(IPAddress.Parse(remoteIPAddress), remotePort);
 
-            byte[] data = Encoding.UTF8.GetBytes(msg);
+            client_Command.Message = msg;
+            byte[] data = ObjectToByteArray(client_Command);
             client.Send(data, data.Length, iPEndPoint);
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            string name = Name_text_box.Text;
+            client_Command.Name = Name_text_box.Text;
             Leave_button.IsEnabled = false;
             Join_button.IsEnabled = true;
-            SendMessage(name + " <remove>");
+            SendMessage("<remove>");
         }
 
         private void Button_Click_1(object sender, RoutedEventArgs e)
         {
             if (Name_text_box.Text != "")
             {
-                string name = Name_text_box.Text;
+                client_Command.Name = Name_text_box.Text;
                 Leave_button.IsEnabled = true;
                 Join_button.IsEnabled = false;
-                SendMessage(name + " <connect>");
+                SendMessage("<connect>");
             }
         }
 
         private void Button_Click_2(object sender, RoutedEventArgs e)
         {
-            string name = Name_text_box.Text;
-            SendMessage(name + " " + txtBox.Text);
+            client_Command.Name = Name_text_box.Text;
+            SendMessage(txtBox.Text);
         }
 
         private void Window_Closed(object sender, EventArgs e)
         {
             SendMessage("<remove>");
             client.Close();
+        }
+
+        public static byte[] ObjectToByteArray(Object obj)
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            using (var ms = new MemoryStream())
+            {
+                bf.Serialize(ms, obj);
+                return ms.ToArray();
+            }
+        }
+
+        public static Object ByteArrayToObject(byte[] arrBytes)
+        {
+            using (var memStream = new MemoryStream())
+            {
+                var binForm = new BinaryFormatter();
+                memStream.Write(arrBytes, 0, arrBytes.Length);
+                memStream.Seek(0, SeekOrigin.Begin);
+                var obj = binForm.Deserialize(memStream);
+                return obj;
+            }
         }
     }
 }

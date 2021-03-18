@@ -1,8 +1,11 @@
-﻿using System;
+﻿using ComandClasses;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,7 +17,8 @@ namespace _02_Chat_Server
         // порт для прослуховування
         private const int port = 8080;
         // список учасників чату
-        private static List<IPEndPoint> members = new List<IPEndPoint>();
+        //private static List<IPEndPoint> members = new List<IPEndPoint>();
+        private static List<Server_Command> members = new List<Server_Command>();
 
         // створення об'єкту UdpClient та встановлюємо порт для прослуховування
         static UdpClient server = new UdpClient(port);
@@ -22,17 +26,25 @@ namespace _02_Chat_Server
         static IPEndPoint groupEP = null;
 
 
+
         static void Main(string[] args)
         {
+            
             //Semaphore semaphore = new Semaphore(2,2);
             try
             {
                 while (true)
                 {
+                    Server_Command server_Command = new Server_Command();
                     Console.WriteLine("\tWaiting for a message...");
                     byte[] bytes = server.Receive(ref groupEP);
 
-                    Task.Run(() => Client_server(bytes/*, semaphore*/));
+                    Client_Command client_Command = (Client_Command)ByteArrayToObject(bytes);
+                    server_Command.iPEndPoint = groupEP;
+                    server_Command.Name = client_Command.Name;
+                    server_Command.Message = client_Command.Message;
+
+                    Task.Run(() => Client_server(server_Command/*, semaphore*/));
                 }
 
             }
@@ -47,13 +59,10 @@ namespace _02_Chat_Server
             }
         }
 
-        static void Client_server(byte[] bytes/*, Semaphore semaphore*/)
+        static void Client_server(Server_Command server_Command/*, Semaphore semaphore*/)
         {
-            string msg = Encoding.UTF8.GetString(bytes, 0, bytes.Length);
-
-            char[] wordsSplit = new char[] { ' ' };
-            string[] words = msg.Split(wordsSplit, StringSplitOptions.RemoveEmptyEntries);
-            string name = words[0];
+            string msg = server_Command.Message;
+            string name = server_Command.Name;
 
             //if (!semaphore.WaitOne(200))
             //{
@@ -64,7 +73,7 @@ namespace _02_Chat_Server
             //}
 
             bool isSuccesful;
-            if (msg == name + " <connect>")
+            if (msg == "<connect>")
             {
                 //if(members.Count+1 > 2)
                 //{
@@ -74,56 +83,61 @@ namespace _02_Chat_Server
                 //    return;
                 //}
 
-                isSuccesful = AddMember(groupEP);
+                isSuccesful = AddMember(server_Command);
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine($"Request to connect from {groupEP} at {DateTime.Now.ToShortTimeString()}\n");
                 if (isSuccesful)
                 {
                     Console.WriteLine($"Operation completed succesful!\n");
                 }
-                msg = name + " conect!";
-                byte[] bytess = Encoding.ASCII.GetBytes(msg);
+                msg = "conect!";
                 foreach (var m in members)
                 {
                     try
                     {
-                        if (m != groupEP)
-                            server.Send(bytess, bytess.Length, m);
+                        if (m.iPEndPoint != server_Command.iPEndPoint)
+                        {
+                            server_Command.Message = msg;
+                            byte[] byttes = ObjectToByteArray(server_Command);
+                            server.Send(byttes, byttes.Length, m.iPEndPoint);
+                        }
                     }
                     catch (Exception ex)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"Error with {m}: {ex.Message}\n");
+                        Console.WriteLine($"Error with {m.Name}: {ex.Message}\n");
                     }
                 }
                 foreach (var item in members)
                 {
-                    Console.WriteLine(item.Port + " " + item.Address);
+                    Console.WriteLine(item.iPEndPoint.Port + " " + item.iPEndPoint.Address);
                 }
             }
-            else if (msg == name + " <remove>")
+            else if (msg == "<remove>")
             {
-                isSuccesful = RemoveMember(groupEP);
+                isSuccesful = RemoveMember(server_Command);
                 Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine($"Request to leave from {groupEP} at {DateTime.Now.ToShortTimeString()}\n");
                 if (isSuccesful)
                 {
                     Console.WriteLine($"Operation completed succesful!\n");
                 }
-                msg = name + " leave!";
-                byte[] bytess = Encoding.ASCII.GetBytes(msg);
+                msg = "leave!";
                 foreach (var m in members)
                 {
                     try
                     {
-                        if (m != groupEP)
-                            server.Send(bytess, bytess.Length, m);
-                        //semaphore.Release();
+                        //if (m.iPEndPoint != server_Command.iPEndPoint)
+                        //{
+                            server_Command.Message = msg;
+                            byte[] byttes = ObjectToByteArray(server_Command);
+                            server.Send(byttes, byttes.Length, m.iPEndPoint);
+                        //}
                     }
                     catch (Exception ex)
                     {
                         Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine($"Error with {m}: {ex.Message}\n");
+                        Console.WriteLine($"Error with {m.Name}: {ex.Message}\n");
                     }
                 }
             }
@@ -132,13 +146,13 @@ namespace _02_Chat_Server
                 bool ok = false;
                 foreach (var item in members)
                 {
-                    if(groupEP.Port == item.Port)
+                    if (server_Command.iPEndPoint.Port == item.iPEndPoint.Port)
                     {
                         ok = true;
                     }
                 }
                 Console.ForegroundColor = ConsoleColor.Cyan;
-                Console.WriteLine($"Message from {groupEP} at {DateTime.Now.ToShortTimeString()}: {msg}\n");
+                Console.WriteLine($"Message from {groupEP} at {DateTime.Now.ToShortTimeString()}: {server_Command.Message}\n");
 
                 if (ok == true)
                 {
@@ -146,12 +160,13 @@ namespace _02_Chat_Server
                     {
                         try
                         {
-                            server.Send(bytes, bytes.Length, m);
+                            byte[] byttes = ObjectToByteArray(server_Command);
+                            server.Send(byttes, byttes.Length, m.iPEndPoint);
                         }
                         catch (Exception ex)
                         {
                             Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine($"Error with {m}: {ex.Message}\n");
+                            Console.WriteLine($"Error with {m.Name}: {ex.Message}\n");
                         }
                     }
                 }
@@ -159,27 +174,64 @@ namespace _02_Chat_Server
             Console.ResetColor();
         }
 
-        static bool AddMember(IPEndPoint endPoint)
+        static bool AddMember(Server_Command server_Command)
         {
-            var member = members.FirstOrDefault(m => m.ToString() == endPoint.ToString());
-            if (member == null)
+            //var member = members.FirstOrDefault(m => m.iPEndPoint.ToString() == server_Command.iPEndPoint.ToString());
+            foreach (var item in members)
             {
-                members.Add(endPoint);
-                return true;
+                if (item.iPEndPoint == server_Command.iPEndPoint)
+                    return false;
             }
-            return false;
-
-
+            members.Add(server_Command);
+            return true;
         }
-        static bool RemoveMember(IPEndPoint endPoint)
+
+        //static bool AddMember(IPEndPoint endPoint)
+        //{
+        //    var member = members.FirstOrDefault(m => m.ToString() == endPoint.ToString());
+        //    if (member == null)
+        //    {
+        //        members.Add(endPoint);
+        //        return true;
+        //    }
+        //    return false;
+
+
+        //}
+        static bool RemoveMember(Server_Command server_Command)
         {
-            var member = members.FirstOrDefault(m => m.ToString() == endPoint.ToString());
-            if (member != null)
+            //var member = members.FirstOrDefault(m => m.iPEndPoint.ToString() == server_Command.iPEndPoint.ToString());
+            foreach (var item in members)
             {
-                members.Remove(member);
-                return true;
+                if (item.iPEndPoint.Port == server_Command.iPEndPoint.Port)
+                {
+                    members.Remove(item);
+                    return true;
+                }
             }
             return false;
+        }
+
+        public static byte[] ObjectToByteArray(Object obj)
+        {
+            BinaryFormatter bf = new BinaryFormatter();
+            using (var ms = new MemoryStream())
+            {
+                bf.Serialize(ms, obj);
+                return ms.ToArray();
+            }
+        }
+
+        public static Object ByteArrayToObject(byte[] arrBytes)
+        {
+            using (var memStream = new MemoryStream())
+            {
+                var binForm = new BinaryFormatter();
+                memStream.Write(arrBytes, 0, arrBytes.Length);
+                memStream.Seek(0, SeekOrigin.Begin);
+                var obj = binForm.Deserialize(memStream);
+                return obj;
+            }
         }
     }
 }
