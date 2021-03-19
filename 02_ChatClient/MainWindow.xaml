@@ -12,31 +12,67 @@
             <RowDefinition Height="30"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <DockPanel Grid.Row="0">
-            <TextBox Name="Name_text_box" DockPanel.Dock="Right" Width="100"></TextBox>
-            <Label DockPanel.Dock="Right">Name:</Label>
-            <Label FontWeight="Bold">Message:</Label>
-            <Button Name="Leave_button" IsEnabled="False" Click="Button_Click" Width="100" DockPanel.Dock="Right" Background="IndianRed">Leave</Button>
-            <Button Name="Join_button" Click="Button_Click_1" Width="100" DockPanel.Dock="Right" Background="LightGreen">Join</Button>
-            <Button Click="Button_Click_2" Width="100" DockPanel.Dock="Right" Background="DarkCyan">Send</Button>
-            <TextBox FontSize="16" VerticalContentAlignment="Center" Name="txtBox"></TextBox>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="0.35*"></ColumnDefinition>
+            <ColumnDefinition Width="0.002*"></ColumnDefinition>
+            <ColumnDefinition></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <DockPanel Grid.Column="0">
+            <Label Name="All_contacts_lable" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" MouseDown="All_contacts_lable_MouseDown">All contacts:</Label>
+            <Label Name="My_contacts_lable" FontWeight="Bold" VerticalAlignment="Center" HorizontalAlignment="Center" MouseDown="My_contacts_lable_MouseDown">My contacts:</Label>
         </DockPanel>
-        <ListBox Grid.Row="1" Name="list" HorizontalContentAlignment="Stretch">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <DockPanel>
-                        <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center">
+        <Grid Grid.Column="0" Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition Height="0.1*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <ListBox Name="Contact_list_box" Grid.Row="0" Margin="5"></ListBox>
+            <DockPanel Grid.Row="1">
+                <Button Margin="4" Name="Refresh_contact_button" Click="Refresh_contact_button_Click">Refresh contacts</Button>
+                <Button Margin="4" Name="Add_friend_button" Click="Add_friend_button_Click">Add friend</Button>
+            </DockPanel>
+        </Grid>
+        
+        <!--<Line Width="4" Grid.Column="1" Grid.Row="0" Grid.RowSpan="2" Fill="Black"/>-->
+        <DockPanel Grid.Row="0" Grid.Column="2" LastChildFill="False">
+            <Label Name="Tag_lable" DockPanel.Dock="Right" Width="120"></Label>
+            <Label DockPanel.Dock="Right">Tag:</Label>
+            <Label Name="Name_lable" DockPanel.Dock="Right" Width="120"></Label>
+            <Label DockPanel.Dock="Right">Name:</Label>
+            
+            <!--<Button Name="Leave_button" IsEnabled="False" Click="Button_Click" Width="100" DockPanel.Dock="Right" Background="IndianRed">Leave</Button>
+            <Button Name="Join_button" Click="Button_Click_1" Width="100" DockPanel.Dock="Right" Background="LightGreen">Join</Button>-->
+            
+            
+        </DockPanel>
+        <Grid Grid.Row="1" Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition></RowDefinition>
+                <RowDefinition Height="0.1*"></RowDefinition>
+            </Grid.RowDefinitions>
+            <DockPanel Grid.Row="1">
+                <Button Click="Button_Click_2" Width="100" DockPanel.Dock="Right" Background="DarkCyan" Margin="5">Send</Button>
+                <Label FontWeight="Bold">Message:</Label>
+                <TextBox Margin="5" FontSize="16" VerticalContentAlignment="Center" Name="txtBox"></TextBox>
+            </DockPanel>
+            <ListBox Margin="5" Name="list" HorizontalContentAlignment="Stretch">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <DockPanel>
+                            <TextBlock DockPanel.Dock="Right" VerticalAlignment="Center">
                             <Run Text="Name: "/>
-                            <Run Text="{Binding Name}"/> 
-                        </TextBlock>
-                        <TextBlock>
+                            <Run Text="{Binding Name}"/>
+                            </TextBlock>
+                            <TextBlock>
                             <Run Text="{Binding Time}"/>
                             <Run Text=" : "/>
-                            <Run FontSize="16" FontWeight="Bold" Text="{Binding Text}"/>  
-                        </TextBlock>
-                    </DockPanel>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+                            <Run FontSize="16" FontWeight="Bold" Text="{Binding Text}"/>
+                            </TextBlock>
+                        </DockPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+        
     </Grid>
 </Window>

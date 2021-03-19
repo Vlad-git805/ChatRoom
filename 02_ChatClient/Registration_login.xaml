@@ -6,7 +6,13 @@
         xmlns:local="clr-namespace:_02_ChatClient"
         mc:Ignorable="d"
         
-    Title="Registration_login" Height="450" Width="600" Background="#FF0681AE">
+    Title="Registration_login" Height="450" Width="600">
+    <Window.Background>
+        <LinearGradientBrush EndPoint="0.5,1" MappingMode="RelativeToBoundingBox" StartPoint="0.5,0">
+            <GradientStop Color="#FFF0018A" Offset="0.14"/>
+            <GradientStop Color="#FF9900FF" Offset="0.73"/>
+        </LinearGradientBrush>
+    </Window.Background>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="58*"></RowDefinition>
@@ -17,6 +23,7 @@
             <RowDefinition Height="52*"></RowDefinition>
             <RowDefinition Height="53*"></RowDefinition>
             <RowDefinition Height="52*"></RowDefinition>
+            <RowDefinition Height="52*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="0.2*"></ColumnDefinition>
@@ -24,21 +31,21 @@
             <ColumnDefinition Width="0.2*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
-        <Border CornerRadius="25" Margin="12.2,5,11.8,38.6" Background="#FF31C2B0"  Grid.Column="1" Grid.Row="0" Height="60" Width="350"  Grid.RowSpan="2">
-            <Label HorizontalAlignment="Center" HorizontalContentAlignment="Center" FontSize="36" Width="400">Libryary</Label>
+        <Border CornerRadius="25" Background="#FFAB00FF"  Grid.Column="1" Grid.Row="0" Height="40" Width="350">
+            <Label HorizontalAlignment="Center" HorizontalContentAlignment="Center" FontSize="25" Width="400">Chat</Label>
         </Border>
-        <Label HorizontalAlignment="Center" HorizontalContentAlignment="Center" Grid.Column="1" Grid.Row="2" FontSize="24" Margin="85.2,0.4,85.8,0.4" Width="253">
+        <Label HorizontalAlignment="Center" HorizontalContentAlignment="Center" Grid.Column="1" Grid.Row="1" FontSize="24" Margin="85.2,0.4,85.8,0.4" Width="253">
             <Label.Effect>
                 <DropShadowEffect/>
             </Label.Effect> Enter your data
         </Label>
-        <Grid Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" Margin="0.2,52.4,84.6,0.4" Grid.RowSpan="2">
+        <Grid Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" Margin="0.2,52.4,84.6,0.4" Grid.RowSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"></ColumnDefinition>
                 <ColumnDefinition Width="1*"></ColumnDefinition>
                 <ColumnDefinition Width="1*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="5,5,5,5" FontSize="20">
+            <Label Grid.Column="0" HorizontalAlignment="Center" HorizontalContentAlignment="Center"  FontSize="20">
                 <Label.Effect>
                     <DropShadowEffect/>
                 </Label.Effect> Name
@@ -55,24 +62,24 @@
                 <ColumnDefinition Width="1*"></ColumnDefinition>
                 <ColumnDefinition Width="1*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="5,5,5,5" FontSize="20">
+            <Label Name="Tag_lable" Grid.Column="0" HorizontalAlignment="Center" HorizontalContentAlignment="Center" FontSize="20">
                 <Label.Effect>
                     <DropShadowEffect/>
-                </Label.Effect> Password
+                </Label.Effect> Tag
             </Label>
-            <PasswordBox Grid.Column="1" Grid.ColumnSpan="2" Margin="5,5,5,5">
-                <PasswordBox.Effect>
+            <TextBox Name="Tag_text_box" Grid.Column="1" Grid.ColumnSpan="2" Margin="5,5,5,5" HorizontalContentAlignment="Center" FontSize="18" TextChanged="Name_text_box_TextChanged">
+                <TextBox.Effect>
                     <DropShadowEffect/>
-                </PasswordBox.Effect>
-            </PasswordBox>
+                </TextBox.Effect>
+            </TextBox>
         </Grid>
-        <Grid Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2" Margin="0.2,51.6,84.6,0.2" Grid.RowSpan="2">
+        <Grid Grid.Column="1" Grid.Row="2" Grid.ColumnSpan="2" Margin="0.2,51.6,84.6,0.2" Grid.RowSpan="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="1*"></ColumnDefinition>
                 <ColumnDefinition Width="1*"></ColumnDefinition>
                 <ColumnDefinition Width="1*"></ColumnDefinition>
             </Grid.ColumnDefinitions>
-            <Label Grid.Column="0" HorizontalAlignment="Center" HorizontalContentAlignment="Center" Margin="5,5,5,5" FontSize="20">
+            <Label Grid.Column="0" HorizontalAlignment="Center" HorizontalContentAlignment="Center" FontSize="20">
                 <Label.Effect>
                     <DropShadowEffect/>
                 </Label.Effect> Password

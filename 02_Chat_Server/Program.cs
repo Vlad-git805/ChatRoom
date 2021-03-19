@@ -43,6 +43,7 @@ namespace _02_Chat_Server
                     server_Command.iPEndPoint = groupEP;
                     server_Command.Name = client_Command.Name;
                     server_Command.Message = client_Command.Message;
+                    server_Command.To_who_message = client_Command.To_who_message;
 
                     Task.Run(() => Client_server(server_Command/*, semaphore*/));
                 }
@@ -64,25 +65,9 @@ namespace _02_Chat_Server
             string msg = server_Command.Message;
             string name = server_Command.Name;
 
-            //if (!semaphore.WaitOne(200))
-            //{
-            //    string str = name + " Wheit please a fiew minutes to connect";
-            //    byte[] byt = Encoding.ASCII.GetBytes(str);
-            //    server.Send(byt, byt.Length, groupEP);
-            //    return;
-            //}
-
             bool isSuccesful;
             if (msg == "<connect>")
             {
-                //if(members.Count+1 > 2)
-                //{
-                //    string str = name + " Wheit please a fiew minutes to connect";
-                //    byte[] byt = Encoding.ASCII.GetBytes(str);
-                //    server.Send(byt, byt.Length, groupEP);
-                //    return;
-                //}
-
                 isSuccesful = AddMember(server_Command);
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine($"Request to connect from {groupEP} at {DateTime.Now.ToShortTimeString()}\n");
@@ -95,12 +80,12 @@ namespace _02_Chat_Server
                 {
                     try
                     {
-                        if (m.iPEndPoint != server_Command.iPEndPoint)
-                        {
+                        //if (m.iPEndPoint != server_Command.iPEndPoint)
+                        //{
                             server_Command.Message = msg;
                             byte[] byttes = ObjectToByteArray(server_Command);
                             server.Send(byttes, byttes.Length, m.iPEndPoint);
-                        }
+                        //}
                     }
                     catch (Exception ex)
                     {
@@ -160,8 +145,11 @@ namespace _02_Chat_Server
                     {
                         try
                         {
-                            byte[] byttes = ObjectToByteArray(server_Command);
-                            server.Send(byttes, byttes.Length, m.iPEndPoint);
+                            if (server_Command.To_who_message == m.iPEndPoint.Port.ToString())
+                            {
+                                byte[] byttes = ObjectToByteArray(server_Command);
+                                server.Send(byttes, byttes.Length, m.iPEndPoint);
+                            }
                         }
                         catch (Exception ex)
                         {

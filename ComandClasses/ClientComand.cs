@@ -7,18 +7,13 @@ using System.Threading.Tasks;
 
 namespace ComandClasses
 {
-    //public enum CommandType
-    //{
-    //    REMOVE,   
-    //    CONNECT,    
-    //    SEND_MESSAGE,   
-    //    CREATE_ROOM,
-    //}
     [Serializable]
     public class Client_Command
     {
         public string Name { get; set; }
         public string Message { get; set; }
+        public string From_who_message { get; set; }
+        public string To_who_message { get; set; }
     }
     [Serializable]
     public class Server_Command
@@ -26,16 +21,6 @@ namespace ComandClasses
         public IPEndPoint iPEndPoint { get; set; }
         public string Name { get; set; }
         public string Message { get; set; }
+        public string To_who_message { get; set; }
     }
-
-    //public class ServerCommand
-    //{
-    //    public CommandType Type { get; set; }
-    //    public string PersonName { get; set; }
-
-    //    public ServerCommand(CommandType type)
-    //    {
-    //        this.Type = type;
-    //    }
-    //}
 }
